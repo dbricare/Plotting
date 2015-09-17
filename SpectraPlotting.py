@@ -21,11 +21,7 @@ def colordef(Labels):
 	ColorDict['Sodium Chloride'] = 'GoldenRod'
 
 	ColorScheme = ['RoyalBlue', 'FireBrick', 'OliveDrab', 'DarkCyan', 'Coral', 'CornflowerBlue', 'SaddleBrown', 'YellowGreen', 'DarkViolet', 'DarkTurquoise']
-# 
-# 	Labels.sort()
-# 
-# 	for i in range(len(Labels)):
-# 		ColorDict[Labels[i]] = ColorScheme[i]
+
 
 	return(ColorDict, ColorScheme)
 	
@@ -37,18 +33,13 @@ def colordef(Labels):
 Plotting several Raman spectra in a single box plot. Plot function reads in data from datacsv where first column is x-axis and the remaining columns are y-axis data, file should contain a header row with labels for each y column.
 """
 	
-def specsinglebox(datacsv):
-	import numpy as np
+def specsinglebox(Data, Lables):
+
 	import matplotlib.pyplot as plt
 	
 	plt.rc('font', family = 'Arial', size='16')
 
-	f = open(datacsv, mode='r')
-	header = f.readline()
-	Labels = header.replace(',\n','').replace('\n','').replace('Wavenumber,','')
-	Labels = Labels.replace(',,',',').split(',')
 
-	Data = np.loadtxt(datacsv, delimiter=',', skiprows=1)
 	ColorDict, _ = colordef(Labels)
 # 	Flip y-data and labels left-right to change plot order if needed
 	Data[:,1:] = np.fliplr(Data[:,1:])
@@ -61,10 +52,10 @@ def specsinglebox(datacsv):
 	yy = Data[:,1:]
 	nPlots = yy.shape[1]
 	
-# 	import ipdb; ipdb.set_trace() # Breakpoint
 	
 # Subplots with some shared axes
 	fig, Axlst = plt.subplots(1, sharex=True, sharey=False, figsize=(12,7))
+	
 # Set margins
 	plt.subplots_adjust(bottom=0.10,left=0.05,right=0.89,top=0.95,wspace=0.1,hspace=0.1)
 		
@@ -97,17 +88,10 @@ def specsinglebox(datacsv):
 Plotting several Raman spectra pairs in individual boxes (i.e., for comparing spontaneous and SERS spectra)
 """
 
-def specpairs(datacsv):
+def specpairs(Data, Lables):
 
-	import numpy as np
 	import matplotlib.pyplot as plt
 
-	f = open(datacsv, mode='r')
-	header = f.readline()
-
-	Data = np.loadtxt(datacsv, delimiter=',', skiprows=1)
-	Labels = header.replace(',\n','').replace('Wavenumber,','')
-	Labels = Labels.replace(',,',',').split(',')
 # 	_, ColorScheme = colordef(Labels)
 	ColorScheme = ['DarkOrange', 'CornflowerBlue', 'OliveDrab']
 
@@ -158,18 +142,10 @@ def specpairs(datacsv):
 Plotting several Raman spectra pairs in individual boxes (i.e., for comparing spontaneous and SERS spectra) with one box having an attached box for an additional spectra window
 """
 
-def specboxesodd(datacsv):
+def specboxdblwide(Data, Lables):
 
-	import numpy as np
 	import matplotlib.pyplot as plt
 	from matplotlib.gridspec import GridSpec
-
-	f = open(datacsv, mode='r')
-	header = f.readline()
-
-	Data = np.loadtxt(datacsv, delimiter=',', skiprows=1)
-	Labels = header.replace(',,\n','').replace('Wavenumber,','')
-	Labels = Labels.replace(',,,',',').split(',')
 	
 # 	_, ColorScheme = colordef(Labels)
 	ColorScheme = ['DarkOrange', 'CornflowerBlue', 'OliveDrab']
@@ -189,7 +165,7 @@ def specboxesodd(datacsv):
 
 	plt.rc('font', family = 'Arial', size='14')
 
-# Setup grid for all plots excluding the last box and plot
+# Setup grid for all plots and create plots except for last box and plot
 	fig = plt.figure(figsize=(7,9))
 	gs = GridSpec(nPlots+1,5)
 	gs.update(left=0.10, right=0.95, top=0.99, bottom=0.08, hspace=0, wspace=0)
@@ -231,15 +207,10 @@ def specboxesodd(datacsv):
 #--------------------------------------------------------------------------------------
 # Plot a scatter plot with errorbars and fit a trendline
 
-def plottrend(datacsv):
 
-	import numpy as np
+def plottrend(Data, Lables):
+
 	import matplotlib.pyplot as plt
-
-	f = open(datacsv, mode='r')
-	header = f.readline()
-
-	Data = np.loadtxt(datacsv, delimiter=',', skiprows=1)
 	
 	plt.ioff()
 	
@@ -275,19 +246,58 @@ def plottrend(datacsv):
 	
 
 #--------------------------------------------------------------------------------------
-# Parse the arguments passed by the user and run the plotting function
+# Parse the arguments passed by the user and run the selected plotting function
 
-import argparse
 
-parser = argparse.ArgumentParser(description='plot given data')
+import argparse, re
+import numpy as np
+
+
+parser = argparse.ArgumentParser(description='plot spectral data contained in csv')
+parser.add_argument("pltype", help='plot options: singlebox, multibox, multiboxdblwide, or trendline')
 parser.add_argument("datacsv", help='name of csv containing data to plot')
+
 
 args = parser.parse_args()
 
-# specsinglebox(args.datacsv)
-# specpairs(args.datacsv)
-specboxesodd(args.datacsv)
-# plottrend(args.datacsv)
+
+# Check for errors in filename before proceeding to function call
+if re.search('csv', args.datacsv, re.I) is None:
+	raise Exception("Requires CSV file with extenstion '.csv'")
+
+
+# Open file, read in header, assign labels, close file
+f = open(args.datacsv, mode='r')
+header = f.readline()
+f.close()
+
+
+# Raise exception if file is not a CSV
+if ',' not in header:
+	raise Exception("Unable to find ',' delimiter, file must contain comma separated values.")
+
+
+# Extract data labels from the csv header
+Labels = [s for s in re.split(',',header) if '\n' not in s and s != '']
+# Remove the first label for the x-axis data
+Labels = Labels[1:]
+
+
+# Header is loaded separately as loadtxt does not handle mixed data types well
+Data = np.loadtxt(args.datacsv, delimiter=',', skiprows=1)
+
+
+# Check for errors and call indicated function
+if args.pltype == 'singlebox':
+	specsinglebox(Data, Labels)
+elif args.pltype == 'multibox':
+	specbox(Data, Labels)
+elif args.pltype == 'multiboxdblwide':
+	specboxdblwide(Data, Labels)
+elif args.pltype == 'trendline':
+	plottrend(Data, Labels)
+else:
+	raise Exception("Invalid plot type. Use '--help' for options.")
 
 
 
