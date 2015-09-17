@@ -33,7 +33,7 @@ def colordef(Labels):
 Plotting several Raman spectra in a single box plot. Plot function reads in data from datacsv where first column is x-axis and the remaining columns are y-axis data, file should contain a header row with labels for each y column.
 """
 	
-def specsinglebox(Data, Lables):
+def specsinglebox(Data, Labels):
 
 	import matplotlib.pyplot as plt
 	
@@ -88,7 +88,7 @@ def specsinglebox(Data, Lables):
 Plotting several Raman spectra pairs in individual boxes (i.e., for comparing spontaneous and SERS spectra)
 """
 
-def specpairs(Data, Lables):
+def specpairs(Data, Labels):
 
 	import matplotlib.pyplot as plt
 
@@ -142,7 +142,7 @@ def specpairs(Data, Lables):
 Plotting several Raman spectra pairs in individual boxes (i.e., for comparing spontaneous and SERS spectra) with one box having an attached box for an additional spectra window
 """
 
-def specboxdblwide(Data, Lables):
+def specboxdblwide(Data, Labels):
 
 	import matplotlib.pyplot as plt
 	from matplotlib.gridspec import GridSpec
@@ -208,7 +208,7 @@ def specboxdblwide(Data, Lables):
 # Plot a scatter plot with errorbars and fit a trendline
 
 
-def plottrend(Data, Lables):
+def plottrend(Data, Labels):
 
 	import matplotlib.pyplot as plt
 	
