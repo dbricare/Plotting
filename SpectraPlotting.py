@@ -41,7 +41,7 @@ def specsinglebox(datacsv):
 	import numpy as np
 	import matplotlib.pyplot as plt
 	
-	plt.rc('font', family = 'Arial', size='20')
+	plt.rc('font', family = 'Arial', size='16')
 
 	f = open(datacsv, mode='r')
 	header = f.readline()
@@ -69,7 +69,7 @@ def specsinglebox(datacsv):
 	plt.subplots_adjust(bottom=0.10,left=0.05,right=0.89,top=0.95,wspace=0.1,hspace=0.1)
 		
 	for i in range(nPlots):
-		Axlst.plot(xx,yy[:,i], label=Labels[i]) #, color=ColorDict[Labels[i]])
+		Axlst.plot(xx,yy[:,i], label=Labels[i], color=ColorDict[Labels[i]])
 		
 	Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
 	Axlst.set_ylabel('Normalized Intensity (a.u.)')
@@ -78,11 +78,11 @@ def specsinglebox(datacsv):
 	
 # Shrink current axis by 20%
 	box = Axlst.get_position()
-# 	Axlst.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+	Axlst.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
 # Place legend outside of axes box
-# 	Axlst.legend(bbox_to_anchor=(1,0.5),loc='center left')
-	Axlst.legend(loc='best')
+	Axlst.legend(bbox_to_anchor=(1,0.5),loc='center left')
+# 	Axlst.legend(loc='best')
 	
 # 	fig.tight_layout()
 # 	fig.savefig('test.png')	
@@ -130,11 +130,11 @@ def specpairs(datacsv):
 		Axlst[i].set_yticklabels([1],visible=False)
 
 # Set different y-limit for colistin due to sulfate peak
-# 		if i == nPlots-1:
-# 			Axlst[i].set_ylim(0,1.7)
-# 		else:
-# 			Axlst[i].set_ylim(0,1.1)
-		Axlst[i].set_ylim(0,1.1)
+		if i == nPlots-1:
+			Axlst[i].set_ylim(0,1.7)
+		else:
+			Axlst[i].set_ylim(0,1.1)
+# 		Axlst[i].set_ylim(0,1.1)
 		Axlst[i].set_title(Labels[i],ha='left',x=0.05,y=0.8)
 
 	Axlst[-1].set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
@@ -148,6 +148,81 @@ def specpairs(datacsv):
 	
 # 	fig.tight_layout()
 # 	fig.savefig('test.png')
+
+	plt.show()
+
+
+
+#--------------------------------------------------------------------------------------
+"""
+Plotting several Raman spectra pairs in individual boxes (i.e., for comparing spontaneous and SERS spectra) with one box having an attached box for an additional spectra window
+"""
+
+def specboxesodd(datacsv):
+
+	import numpy as np
+	import matplotlib.pyplot as plt
+	from matplotlib.gridspec import GridSpec
+
+	f = open(datacsv, mode='r')
+	header = f.readline()
+
+	Data = np.loadtxt(datacsv, delimiter=',', skiprows=1)
+	Labels = header.replace(',,\n','').replace('Wavenumber,','')
+	Labels = Labels.replace(',,,',',').split(',')
+	
+# 	_, ColorScheme = colordef(Labels)
+	ColorScheme = ['DarkOrange', 'CornflowerBlue', 'OliveDrab']
+
+	plt.ioff()
+
+	xx = Data[:,0].reshape((Data.shape[0],1))
+	yy = Data[:,1:]
+	nPlots = len(Labels)
+	SpecPerPlot = int(yy.shape[1]/nPlots)
+
+# Data for final double-wide spectrum	
+	DataEnd = np.loadtxt('AuNPCHIR.csv', delimiter=',', skiprows=1)
+	Labels.append('CHIR-090')
+	xEnd = DataEnd[:,0].reshape((DataEnd.shape[0],1))
+	yEnd = DataEnd[:,1:]
+
+	plt.rc('font', family = 'Arial', size='14')
+
+# Setup grid for all plots excluding the last box and plot
+	fig = plt.figure(figsize=(7,9))
+	gs = GridSpec(nPlots+1,5)
+	gs.update(left=0.10, right=0.95, top=0.99, bottom=0.08, hspace=0, wspace=0)
+	for i in range(nPlots):
+		ax = plt.subplot(gs[i,:-1])
+		for j in range(SpecPerPlot):
+			ax.plot(xx,yy[:,SpecPerPlot*i+j],c=ColorScheme[j])
+		ax.set_yticks(np.arange(0.2, 1.2, 0.2))
+		ax.set_yticklabels([1],visible=False)
+		ax.set_xticklabels([1],visible=False)	
+		ax.set_title(Labels[i],ha='left',x=0.05,y=0.8)
+		ax.set_ylim(0,1.1)
+
+# Last box has double-wide plot
+	axEndLeft = plt.subplot(gs[-1,:-1])
+	axEndRight = plt.subplot(gs[-1,-1])
+	for j in range(SpecPerPlot):
+		axEndLeft.plot(xEnd,yEnd[:,j],c=ColorScheme[j])
+		axEndRight.plot(xEnd,yEnd[:,j]*4,c=ColorScheme[j])
+	
+	axEndLeft.set_xlim(200,2000)
+	axEndLeft.set_yticklabels([1],visible=False)
+	axEndLeft.set_title(Labels[-1],ha='left',x=0.05,y=0.8)
+	axEndLeft.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
+	axEndLeft.set_ylim(0,1.1)
+
+	axEndRight.set_xlim(2000,2400)
+	axEndRight.set_xticks([2000,2200,2400])
+	axEndRight.set_yticklabels([1],visible=False)
+	axEndRight.set_title('(4x)',ha='right',x=0.85,y=0.8)
+	axEndRight.set_ylim(0,1.1)
+	
+	fig.text(0.05,0.5,'Normalized Intensity (a.u.)',rotation=90,ha='center',va='center')
 
 	plt.show()
 
@@ -210,10 +285,11 @@ parser.add_argument("datacsv", help='name of csv containing data to plot')
 args = parser.parse_args()
 
 # specsinglebox(args.datacsv)
-specpairs(args.datacsv)
+# specpairs(args.datacsv)
+specboxesodd(args.datacsv)
 # plottrend(args.datacsv)
 
 
 
-# 	import ipdb; ipdb.set_trace() # Breakpoint
+# import ipdb; ipdb.set_trace() # Breakpoint
 
