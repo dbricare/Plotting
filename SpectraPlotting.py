@@ -1,4 +1,9 @@
+"""
+Begin function definitions
+"""
 
+
+#--------------------------------------------------------------------------------------
 """
 Define colors to use for each label
 """
@@ -201,49 +206,12 @@ def specboxdblwide(Data, Labels):
 	fig.text(0.05,0.5,'Normalized Intensity (a.u.)',rotation=90,ha='center',va='center')
 
 	plt.show()
+	
+	
+"""
+End function definitions
+"""
 
-
-
-#--------------------------------------------------------------------------------------
-# Plot a scatter plot with errorbars and fit a trendline
-
-
-def plottrend(Data, Labels):
-
-	import matplotlib.pyplot as plt
-	
-	plt.ioff()
-	
-	plt.rc('font', family = 'Arial', size='20')
-
-# 	xx = Data[:,0].reshape((Data.shape[0],1))
-	xx = Data[:,0]
-	yy = Data[:,1]
-	err = Data[:,2]
-	
-# 	import ipdb; ipdb.set_trace() # Breakpoint
-	
-# 	Subplots with some shared axes
-	fig, Axlst = plt.subplots(1, sharex=True, sharey=False, figsize=(12,7))
-# 	Set margins
-	plt.subplots_adjust(bottom=0.10,left=0.1,right=0.95,top=0.95,wspace=0.1,hspace=0.1)
-# 	Scatterplot with error bars
-	Axlst.errorbar(xx, yy, fmt='d', yerr=err*2, capsize=5, capthick=1, markersize=9)
-	
-# 	Calculate trendline and plot
-	zz = np.polyfit(xx,yy,1)
-	p = np.poly1d(zz)
-	xtrend = np.linspace(0.8*xx[0],1.01*xx[-1])
-	Axlst.plot(xtrend,p(xtrend),'k-')
-	
-	Axlst.set_xlabel('Concentration (mM)')
-	Axlst.set_ylabel('Intensity (a.u.)')
-	Axlst.set_xlim(0,21)
-	
-	plt.show()
-	
-	
-	
 
 #--------------------------------------------------------------------------------------
 # Parse the arguments passed by the user and run the selected plotting function
@@ -254,7 +222,7 @@ import numpy as np
 
 
 parser = argparse.ArgumentParser(description='plot spectral data contained in csv')
-parser.add_argument("pltype", help='plot options: singlebox, multibox, multiboxdblwide, or trendline')
+parser.add_argument("pltype", help='plot options: singlebox, multibox, or multiboxdblwide')
 parser.add_argument("datacsv", help='name of csv containing data to plot')
 
 
@@ -287,15 +255,13 @@ Labels = Labels[1:]
 Data = np.loadtxt(args.datacsv, delimiter=',', skiprows=1)
 
 
-# Check for errors and call indicated function
+# Call indicated function and report error if not found
 if args.pltype == 'singlebox':
 	specsinglebox(Data, Labels)
 elif args.pltype == 'multibox':
 	specbox(Data, Labels)
 elif args.pltype == 'multiboxdblwide':
 	specboxdblwide(Data, Labels)
-elif args.pltype == 'trendline':
-	plottrend(Data, Labels)
 else:
 	raise Exception("Invalid plot type. Use '--help' for options.")
 
