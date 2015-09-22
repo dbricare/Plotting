@@ -1,7 +1,7 @@
 """
-Use matplotlib to plot data contained in a csv file. 
+Read in data from 'datacsv' where first column is x-axis and the remaining columns are y-axis data. 
 
-Read in data from datacsv where first column is x-axis and the remaining columns are y-axis data. File should contain a header row with label for x column first then the appropriate y columns.
+File should contain a header row with labels for x column first then the appropriate y columns.
 """
 
 import argparse, re
