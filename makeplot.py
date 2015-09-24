@@ -308,6 +308,44 @@ def markscatrerr(Data, Labels):
 
 
 
+#--------------------------------------------------------------------------------------
+def fillbtwn(Data, Labels):
+
+	"""
+	Plot min, max, avg y-values and fill between min and max. Data columns: x-values, average, min, max.
+	"""
+	
+	plt.rc('font', family = 'Arial', size='20')
+
+	xx = Data[:,0]
+	yy = Data[:,1:]
+	
+	
+# 	Single subplot
+	fig, Axlst = plt.subplots(1, sharex=False, sharey=False, figsize=(12,7))
+	
+	
+# 	Set margins
+	plt.subplots_adjust(bottom=0.10,left=0.10,right=0.95,top=0.95,wspace=0.1,hspace=0.1)
+	
+	
+# 	Plot average, min, and max
+# 	for i in range(yy.shape[1]):
+	plt.plot(xx, yy[:,0])
+	plt.plot(xx, yy[:,0])
+	plt.fill_between(xx,yy[:,1],yy[:,2], where=None, facecolor='gray', edgecolor='black', alpha=0.2)
+	plt.plot(xx, yy[:,0], 'k-', linewidth=2)
+	
+	
+	
+	Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
+	Axlst.set_ylabel('Intensity (a.u.)')
+	Axlst.set_xlim(200,2000)
+	
+	plt.show()
+	
+	
+	
 """
 End function definitions
 """
@@ -360,6 +398,8 @@ if __name__ == '__main__':
 		specmultibox(Data, Labels)
 	elif args.pltype == 'multiboxdblwide':
 		specboxdblwide(Data, Labels)
+	elif args.pltype == 'fillbtwn':
+		fillbtwn(Data,Labels)
 	else:
 		raise Exception("Invalid plot type. Use '--help' for options.")
 
