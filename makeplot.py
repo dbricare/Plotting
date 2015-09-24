@@ -312,35 +312,36 @@ def markscatrerr(Data, Labels):
 def fillbtwn(Data, Labels):
 
 	"""
-	Plot min, max, avg y-values and fill between min and max. Data columns: x-values, average, min, max.
+	Plot min, max, avg y-values and semi-transparent fill between min and max. Data columns: first column is x-values then y-average, y-min, y-max; with this pattern repeated for each desired plot.
 	"""
 	
 	plt.rc('font', family = 'Arial', size='20')
 
 	xx = Data[:,0]
 	yy = Data[:,1:]
+	nPlots = int(yy.shape[1]/3)
+	
+	for i in range(nPlots):
+		
+	
+	# 	Single subplot
+		fig, Axlst = plt.subplots(1, figsize=(12,7))
 	
 	
-# 	Single subplot
-	fig, Axlst = plt.subplots(1, sharex=False, sharey=False, figsize=(12,7))
+	# 	Set margins
+		plt.subplots_adjust(bottom=0.10,left=0.10,right=0.95,top=0.95, wspace=0.1,hspace=0.1)
 	
 	
-# 	Set margins
-	plt.subplots_adjust(bottom=0.10,left=0.10,right=0.95,top=0.95,wspace=0.1,hspace=0.1)
+	# 	Plot fill between min and max then average, min and max to control border color
+		plt.fill_between(xx,yy[:,1+i*3],yy[:,2+i*3], where=None, facecolor='gray', edgecolor='black', alpha=0.15)
+		plt.plot(xx, yy[:,1+i*3], color='#cccccc', linewidth=1)
+		plt.plot(xx, yy[:,2+i*3], color='#cccccc', linewidth=1)	
+		plt.plot(xx, yy[:,0+i*3], color='k', linewidth=2)
+			
 	
-	
-# 	Plot average, min, and max
-# 	for i in range(yy.shape[1]):
-	plt.plot(xx, yy[:,0])
-	plt.plot(xx, yy[:,0])
-	plt.fill_between(xx,yy[:,1],yy[:,2], where=None, facecolor='gray', edgecolor='black', alpha=0.2)
-	plt.plot(xx, yy[:,0], 'k-', linewidth=2)
-	
-	
-	
-	Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
-	Axlst.set_ylabel('Intensity (a.u.)')
-	Axlst.set_xlim(200,2000)
+		Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
+		Axlst.set_ylabel('Intensity (a.u.)')
+		Axlst.set_xlim(200,2000)
 	
 	plt.show()
 	
@@ -358,7 +359,7 @@ if __name__ == '__main__':
 
 	# Parse arguments
 	parser = argparse.ArgumentParser(description='plot data contained in csv')
-	parser.add_argument("pltype", help='options: trenderr, markscatrerr, singlebox, multibox, multiboxdblwide')
+	parser.add_argument("pltype", help='options: singlebox, multibox, multiboxdblwide, trenderr, markscatrerr, fillbtwn')
 	parser.add_argument("datacsv", help='name of csv (including extension)')
 	args = parser.parse_args()
 
@@ -387,7 +388,7 @@ if __name__ == '__main__':
 	Data = np.loadtxt(args.datacsv, delimiter=',', skiprows=1)
 
 
-	# Call indicated function and report error if not found
+	# Call indicated function and report error if no valid plot option specified
 	if args.pltype == 'trenderr':
 		trenderr(Data, Labels)
 	elif args.pltype == 'markscatrerr':
