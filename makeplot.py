@@ -4,12 +4,6 @@ Read in data from 'datacsv' where first column is x-axis and the remaining colum
 File should contain a header row with labels for x column first then the appropriate y columns.
 """
 
-import argparse, re
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Turn off pyplot interactive mode
-plt.ioff()
 
 
 """
@@ -57,7 +51,7 @@ def specsinglebox(Data, Labels):
 
 
 	ColorDict, _ = colordef(Labels)
-# 	Flip y-data and labels left-right to change plot order if needed
+	# 	Flip y-data and labels left-right to change plot order if needed
 	Data[:,1:] = np.fliplr(Data[:,1:])
 	Labels = Labels[1:]
 	Labels = Labels[::-1]
@@ -66,33 +60,33 @@ def specsinglebox(Data, Labels):
 	xx = Data[:,0].reshape((Data.shape[0],1))
 	yy = Data[:,1:]
 	nPlots = len(Labels)
-	
-	
-# Subplots with some shared axes
+
+
+	# Subplots with some shared axes
 	fig, Axlst = plt.subplots(1, sharex=True, sharey=False, figsize=(12,7))
-	
-# Set margins
+
+	# Set margins
 	plt.subplots_adjust(bottom=0.10,left=0.05,right=0.89,top=0.95,wspace=0.1,hspace=0.1)
-		
+	
 	for i in range(nPlots):
 		Axlst.plot(xx,yy[:,i], label=Labels[i], color=ColorDict[Labels[i]])
-		
+	
 	Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
 	Axlst.set_ylabel('Normalized Intensity (a.u.)')
-# 	Axlst.set_yticks(np.arange(0, np.max(yy), 0.5))
+	# 	Axlst.set_yticks(np.arange(0, np.max(yy), 0.5))
 	Axlst.set_yticklabels([1],visible=False)
-	
-	
-# Shrink current axis by 20%
+
+
+	# Shrink current axis by 20%
 	box = Axlst.get_position()
 	Axlst.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
 
-# Place legend outside of axes box
+	# Place legend outside of axes box
 	Axlst.legend(bbox_to_anchor=(1,0.5),loc='center left')
-# 	Axlst.legend(loc='best')
-	
-# 	fig.tight_layout()
+	# 	Axlst.legend(loc='best')
+
+	# 	fig.tight_layout()
 # 	fig.savefig('test.png')	
 
 	plt.show()
@@ -356,6 +350,14 @@ End function definitions
 # Main
 
 if __name__ == '__main__':
+
+
+	import argparse, re
+	import numpy as np
+	import matplotlib.pyplot as plt
+
+	# Turn off pyplot interactive mode
+	plt.ioff()
 
 	# Parse arguments
 	parser = argparse.ArgumentParser(description='plot data contained in csv')
