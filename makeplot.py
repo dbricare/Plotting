@@ -51,7 +51,7 @@ def specsinglebox(Data, Labels):
 
 
 	ColorDict, _ = colordef(Labels)
-	# 	Flip y-data and labels left-right to change plot order if needed
+# 	Flip y-data and labels left-right to change plot order if needed
 	Data[:,1:] = np.fliplr(Data[:,1:])
 	Labels = Labels[1:]
 	Labels = Labels[::-1]
@@ -62,10 +62,10 @@ def specsinglebox(Data, Labels):
 	nPlots = len(Labels)
 
 
-	# Subplots with some shared axes
+# Subplots with some shared axes
 	fig, Axlst = plt.subplots(1, sharex=True, sharey=False, figsize=(12,7))
 
-	# Set margins
+# Set margins
 	plt.subplots_adjust(bottom=0.10,left=0.05,right=0.89,top=0.95,wspace=0.1,hspace=0.1)
 	
 	for i in range(nPlots):
@@ -73,20 +73,20 @@ def specsinglebox(Data, Labels):
 	
 	Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
 	Axlst.set_ylabel('Normalized Intensity (a.u.)')
-	# 	Axlst.set_yticks(np.arange(0, np.max(yy), 0.5))
+# 	Axlst.set_yticks(np.arange(0, np.max(yy), 0.5))
 	Axlst.set_yticklabels([1],visible=False)
 
 
-	# Shrink current axis by 20%
+# Shrink current axis by 20%
 	box = Axlst.get_position()
 	Axlst.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
 
-	# Place legend outside of axes box
+# Place legend outside of axes box
 	Axlst.legend(bbox_to_anchor=(1,0.5),loc='center left')
-	# 	Axlst.legend(loc='best')
+# 	Axlst.legend(loc='best')
 
-	# 	fig.tight_layout()
+# 	fig.tight_layout()
 # 	fig.savefig('test.png')	
 
 	plt.show()
@@ -303,13 +303,16 @@ def markscatrerr(Data, Labels):
 
 
 #--------------------------------------------------------------------------------------
-def fillbtwn(Data, Labels):
+def fillbtwn(Data, Labels=None, savename=None):
 
 	"""
 	Plot min, max, avg y-values and semi-transparent fill between min and max. Data columns: first column is x-values then y-average, y-min, y-max; with this pattern repeated for each desired plot.
 	"""
 	
-	plt.rc('font', family = 'Arial', size='20')
+	import matplotlib.pyplot as plt
+	from matplotlib.ticker import AutoMinorLocator
+	
+	plt.rc('font', family = 'Arial', size='18')
 
 	xx = Data[:,0]
 	yy = Data[:,1:]
@@ -327,18 +330,23 @@ def fillbtwn(Data, Labels):
 	
 	
 	# 	Plot fill between min and max then average, min and max to control border color
-		plt.fill_between(xx,yy[:,1+i*3],yy[:,2+i*3], where=None, facecolor='gray', edgecolor='black', alpha=0.15)
+		plt.fill_between(xx,yy[:,1+i*3],yy[:,2+i*3], where=None, facecolor='gray', edgecolor='black', alpha=0.2)
 		plt.plot(xx, yy[:,1+i*3], color='#cccccc', linewidth=1)
 		plt.plot(xx, yy[:,2+i*3], color='#cccccc', linewidth=1)	
-		plt.plot(xx, yy[:,0+i*3], color='k', linewidth=2)
+		plt.plot(xx, yy[:,0+i*3], color='Black', linewidth=2)
 			
 	
 		Axlst.set_xlabel(r'Wavenumber ($\mathregular{cm}^{-1}$)')
 		Axlst.set_ylabel('Intensity (a.u.)')
 		Axlst.set_xlim(200,2000)
+		minorLocator = AutoMinorLocator(2)
+		Axlst.xaxis.set_minor_locator(minorLocator)
 	
 	plt.show()
 	
+	if savename:
+		savedir = '/Users/dbricare/Desktop/CBST Lab/Labwork/'
+		plt.savefig(savedir+savename, dpi=150)
 	
 	
 """
@@ -356,8 +364,9 @@ if __name__ == '__main__':
 	import numpy as np
 	import matplotlib.pyplot as plt
 
-	# Turn off pyplot interactive mode
-	plt.ioff()
+# Turn off/on pyplot interactive mode
+# 	plt.ioff()
+	plt.ion()
 
 	# Parse arguments
 	parser = argparse.ArgumentParser(description='plot data contained in csv')
